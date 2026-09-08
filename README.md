@@ -9,7 +9,7 @@ Tier 4 be used until the Tier 3 model's convergence problems are resolved. Six T
 are presented to document progress; none is proposed for specification this cycle.
 
 > The assessment document in this repository is a **draft**. It carries the NOAA pre-dissemination
-> disclaimer and has open author decisions marked `[[author]]`. Do not cite it as final advice.
+> disclaimer. Do not cite it as final advice.
 
 ---
 
