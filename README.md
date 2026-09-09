@@ -42,6 +42,27 @@ R 4.5 or later. Requires `gmacsr`, `wtsGMACS`, `crabpack`, `rema`, `flextable`, 
 
 Always run from the repository root; scripts resolve paths relative to it.
 
+**Rebuilding the report needs nothing but this repository.** `scripts/08_render_report.R` reads the
+fitted model outputs, the REMA fit and the diagnostic files that are committed here, so the PDF and
+Word versions build from a fresh clone:
+
+```r
+Rscript scripts/08_render_report.R          # PDF
+Rscript scripts/08_render_report.R both     # PDF and Word
+```
+
+**Refitting a model additionally needs a GMACS executable.** The source is committed as
+`GMACs/GMACS_tpl-cpp_code.zip`; unzip it in place before building, since the build scripts expect
+the unzipped directory:
+
+```bash
+unzip GMACs/GMACS_tpl-cpp_code.zip -d GMACs/
+```
+
+`gmacsbase.TPL` in that archive is md5 `b5392eea9d2956816b36acbae7c2c317`, which the model-build
+scripts assert. `GMACs/GMACS_tpl-cpp_code_{recprop_sd1,eqmdevs,combined}` are forks carrying the
+patches described in each diagnostic model's `PROVENANCE.md`.
+
 ```r
 Rscript scripts/01_prep_fishery_data.R      # ADF&G removals + NORPAC -> data/derived/
 Rscript scripts/02_prep_survey_data.R      # crabpack survey pull -> comps, indices, ogive
