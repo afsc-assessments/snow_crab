@@ -17,6 +17,9 @@ Thumbs.db
 *.lof
 *.lot
 *.out
+# ...except the GMACS fit summary, which the SAFE reads for nearly every model
+# quantity. Without it the document cannot be rebuilt from this repository.
+!**/Gmacsall.out
 *.synctex.gz
 *.toc
 SAFE_snow_gmacs_files/

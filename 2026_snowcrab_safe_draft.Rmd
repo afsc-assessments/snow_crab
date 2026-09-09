@@ -2294,6 +2294,93 @@ Zheng, J., G.H. Kruse, and D.R. Ackley.  2001. Spatial distribution and recruitm
 \blandscape
 <!---BLOCK_LANDSCAPE_START--->
 # Tables
+```{r survey-series, echo=FALSE, warning=FALSE, message=FALSE}
+## The observed survey series the Tier 4 calculation is built on. Design-based
+## NMFS summer trawl survey estimates -- no assessment model is involved. Shown
+## in full because the Tier 4 recommendation rests on this series and the
+## document otherwise gives it only for the terminal two years (Table
+## \@ref(tab:survey-currencies)) and as points on Figure \@ref(fig:rema-fit).
+## Requested by a PSC-limit user who needed a model-free survey number, 2026-09.
+.mm <- read.csv("data/derived/survey_indices.csv", stringsAsFactors = FALSE)
+.mm <- .mm[.mm$sex == "male" & .mm$maturity == "mature", c("year", "biomass", "cv")]
+.lg <- read.csv("data/survey/survey_large_male_index_derived.csv", stringsAsFactors = FALSE)
+.cat <- function(k) {
+  d <- .lg[.lg$CATEGORY == k, c("YEAR", "BIOMASS_MT", "BIOMASS_MT_CV")]
+  names(d) <- c("year", "biomass", "cv")
+  d$biomass <- d$biomass / 1000      # t -> 1,000 t, the document's units
+  d
+}
+.fmtbc <- function(b, cv) ifelse(is.na(b), "--", sprintf("%.1f (%.2f)", b, cv))
+svy_series <- Reduce(function(a, b) merge(a, b, by = "year", all = TRUE),
+  list(setNames(.mm,             c("year", "b_mm", "cv_mm")),
+       setNames(.cat("large_male"),    c("year", "b_95", "cv_95")),
+       setNames(.cat("preferred_male"), c("year", "b_101", "cv_101"))))
+svy_series <- svy_series[order(svy_series$year), ]
+stopifnot("survey series must not contain a 2020 row (survey cancelled)" =
+            !(2020 %in% svy_series$year))
+svy_tab_full <- data.frame(
+  Year                          = as.integer(svy_series$year),
+  `Morphometrically mature`     = .fmtbc(svy_series$b_mm,  svy_series$cv_mm),
+  `Males >= 95 mm`              = .fmtbc(svy_series$b_95,  svy_series$cv_95),
+  `Males > 101 mm`              = .fmtbc(svy_series$b_101, svy_series$cv_101),
+  check.names = FALSE, stringsAsFactors = FALSE)
+
+flextable::flextable(svy_tab_full) |>
+  flextable::set_table_properties(layout = "autofit", width = 1,
+                                  opts_pdf = list(caption_repeat = FALSE)) |>
+  flextable::colformat_int(j = "Year", big.mark = "") |>
+  flextable::fontsize(size = 8, part = "all") |>
+  flextable::align(j = 2:4, align = "right", part = "all") |>
+  flextable::set_caption(
+    caption = paste(
+      "Observed NMFS summer trawl survey male biomass (1,000 t) with coefficient of variation in",
+      "parentheses, by maturity definition. These are design-based survey estimates and are not",
+      "output of any assessment model. This is the series the random-effects (REMA) model of Section F",
+      "is fit to. The 2020 survey was cancelled, so that year has no row."),
+    autonum = officer::run_autonum(seq_id = "tab", pre_label = "Table ", bkm = "survey-series"))
+```
+
+\newpage
+
+```{r rema-series, echo=FALSE, warning=FALSE, message=FALSE}
+## The smoothed series the Tier 4 reference points are computed from. The
+## terminal value is the biomass the control rule acts on; the mean over the
+## whole series is the B_MSY proxy. 2020 HAS a row here and not in the observed
+## table above -- that is the point of the random-effects fit.
+.rp <- read.csv("data/tier4/rema_predictions.csv", stringsAsFactors = FALSE)
+.pick <- function(k) {
+  d <- .rp[.rp$size == k, c("Year", "rema_pred", "rema_lci", "rema_uci")]
+  d <- d[order(d$Year), ]
+  data.frame(Year = d$Year,
+             v = sprintf("%.1f (%.1f-%.1f)", d$rema_pred, d$rema_lci, d$rema_uci),
+             stringsAsFactors = FALSE)
+}
+rema_tab <- Reduce(function(a, b) merge(a, b, by = "Year", all = TRUE),
+  list(setNames(.pick("morphometric"), c("Year", "Morphometrically mature")),
+       setNames(.pick("95"),           c("Year", "Males >= 95 mm")),
+       setNames(.pick("101"),          c("Year", "Males > 101 mm"))))
+rema_tab$Year <- as.integer(rema_tab$Year)
+stopifnot("REMA series should carry 2020, which the survey does not" =
+            2020 %in% rema_tab$Year)
+
+flextable::flextable(rema_tab) |>
+  flextable::set_table_properties(layout = "autofit", width = 1,
+                                  opts_pdf = list(caption_repeat = FALSE)) |>
+  flextable::colformat_int(j = "Year", big.mark = "") |>
+  flextable::fontsize(size = 8, part = "all") |>
+  flextable::align(j = 2:4, align = "right", part = "all") |>
+  flextable::set_caption(
+    caption = paste(
+      "Random-effects (REMA) smoothed survey biomass (1,000 t), with the 95 percent prediction",
+      "interval in parentheses, by maturity definition. These are the values the Tier 4 calculation",
+      "uses: the terminal year is the biomass the control rule acts on, and the mean over the whole",
+      "series is the B~MSY~ proxy. 2020 carries a fitted value although the survey was cancelled,",
+      "which is why the proxy is averaged over the smoothed series rather than the observations."),
+    autonum = officer::run_autonum(seq_id = "tab", pre_label = "Table ", bkm = "rema-series"))
+```
+
+\newpage
+
 ```{r model-overview, echo=FALSE, warning=FALSE, message=F}
 # All three columns are keyed off the SAME names, so no positional list can
 # drift out of step (model_jittered lives in 0-models.R beside the definitions).
@@ -2679,6 +2766,8 @@ flextable::flextable(max_grad_df) |>
 
 ```
 
+\newpage
+
 ```{r retro-rho, echo=FALSE, warning=FALSE, message=F}
 
 # Mohn's rho, written by 06_run_retrospective.R (retro_rho loaded in retro-setup).
@@ -2737,6 +2826,8 @@ if (is.null(.rt)) {
 }
 
 ```
+
+\newpage
 
 <!---BLOCK_LANDSCAPE_STOP--->
 \elandscape
@@ -3032,6 +3123,8 @@ flextable::flextable(ref_table) |>
     autonum = officer::run_autonum(seq_id = "tab", pre_label = "Table ", bkm = "stepchange")
   )
 ```
+
+\newpage
 <!---BLOCK_LANDSCAPE_STOP--->
 \elandscape
 
@@ -3152,6 +3245,8 @@ flextable::flextable(PlotTab) |>
 
 ```
 
+\newpage
+
 
 
 ```{r predtotnum, echo=FALSE, warning=FALSE, message=FALSE}
@@ -3214,6 +3309,8 @@ flextable::flextable(tmp_mat2) |>
   )
 
 ```
+
+\newpage
 
 
 
@@ -3289,6 +3386,8 @@ flextable::flextable(sum_mat) |>
   )
 
 ```
+
+\newpage
 
 
 \blandscape
@@ -3564,9 +3663,13 @@ One step of this sweep adds no survey information. The peels withhold the survey
 knitr::include_graphics("plots/rema_tier_4_ssc.png")
 ```
 
+\newpage
+
 ```{r tier4-status-series, echo=FALSE, out.width="88%", fig.cap="Tier 4 stock status (biomass relative to the B~MSY~ proxy) computed on the raw survey series for the two large-male definitions. The red line is the closure threshold beta, below which the OFL is zero. The green line is half the proxy, the minimum stock size threshold. The series is shown on the raw observations rather than the smoothed fit, so it is more variable than the status reported for the specification, which is computed from the REMA fit in Figure \\@ref(fig:rema-fit)."}
 knitr::include_graphics("plots/tier4_status.png")
 ```
+
+\newpage
 
 ```{r retro-drop-survey, echo=FALSE, warning=FALSE, message=F, out.width="100%", fig.cap="Retrospective analysis with the terminal survey year withheld in addition to the peeled years, isolating the leverage of the most recent survey observation on the terminal biomass estimate. Peels are compared to the model fit to all data."}
 
@@ -3779,6 +3882,8 @@ p_imm_final <- dfrImmFit_plot %>%
 print(p_imm_final)
 
 ```
+
+\newpage
 <!---BLOCK_LANDSCAPE_STOP--->
 \elandscape
 \newpage
@@ -4025,6 +4130,8 @@ print(p)
 
 ```
 
+\newpage
+
 \blandscape
 <!---BLOCK_LANDSCAPE_START--->
 
@@ -4057,6 +4164,8 @@ p <- ggplot(fish_mdf) +
 
 print(p)
 ```
+
+\newpage
 <!---BLOCK_LANDSCAPE_STOP--->
 \elandscape
 \newpage
@@ -4636,6 +4745,8 @@ if (conv_have) stopifnot(
   "a convergence row lost its model label" = !any(is.na(conv_tab$Model)))
 ```
 
+\newpage
+
 The June 2026 SSC asked that a focused convergence section identify which parameters separate the jitter minima. This appendix collects the jitter evidence for every model jittered this cycle, together with four structural experiments built specifically to diagnose the multimodality: `26.d1 stability`, `26.d3 eqmdevs`, `26.d4 combined`, and `26.d5`, the male-only model with the equilibrium-backbone initialization. A fifth, `26.d2 initscaled`, was set aside without jittering. None of the experiments is an assessment model and none is proposed for any purpose other than diagnosis. They are registered separately from the model set in `0-models.R` for that reason.
 
 The diagnostic identified three independent pathologies in the accepted model:
@@ -4687,6 +4798,8 @@ if (conv_have) {
   cat("*No per-model jitter files found; see `05_run_jitter.R`.*")
 }
 ```
+
+\newpage
 \elandscape
 
 
@@ -4724,6 +4837,8 @@ if (mv_have) {
 }
 ```
 
+\newpage
+
 \Needspace{9\baselineskip}
 
 <!-- Landscape: the Male movement column was silently dropped off the portrait page, and the prose cites its values (found by review, 2026-08-30). -->
@@ -4750,6 +4865,8 @@ if (xm_have) {
       autonum = officer::run_autonum(seq_id = "tab", pre_label = "Table ", bkm = "xmodel-table"))
 }
 ```
+
+\newpage
 \elandscape
 
 
@@ -4768,10 +4885,14 @@ knitr::include_graphics(c("plots/_twosex_jitter_backup/jittered_results_ofl.png"
                           "plots/_twosex_jitter_backup/jitter_convergence.png"))
 ```
 
+\newpage
+
 ```{r conv-fig-attrib, echo=FALSE, out.width="46%", fig.cap="Parameter attribution for the accepted model (left) and the male-only sensitivity, Model 26.2 (right): the parameters that most separate the jitter minima, ranked by the standardized difference in fitted value between modes. This is the ranking the June 2026 SSC asked for."}
 knitr::include_graphics(c("plots/_twosex_jitter_backup/jitter_param_attribution.png",
                           "plots/_male_only_jitter/jitter_param_attribution_male_only.png"))
 ```
+
+\newpage
 
 ```{r conv-fig-maleonly, echo=FALSE, out.width="46%", fig.cap="Jitter diagnostics for the male-only sensitivity, Model 26.2, in the same panel order as the accepted model above. The minima are better separated in likelihood and the best fit is recovered far more often than in the accepted model."}
 knitr::include_graphics(c("plots/_male_only_jitter/jittered_results_ofl_male_only.png",
@@ -4780,12 +4901,16 @@ knitr::include_graphics(c("plots/_male_only_jitter/jittered_results_ofl_male_onl
                           "plots/_male_only_jitter/jitter_convergence_male_only.png"))
 ```
 
+\newpage
+
 ```{r conv-fig-stability, echo=FALSE, out.width="46%", fig.cap="Jitter diagnostics for the structural experiment 26.d1 (stability), which fixes the non-identified 2019 immature-female mortality deviation and tightens the recruitment sex-ratio penalty. Panel order as above. It did not improve recovery of the best fit and met the gradient criterion less often than the model it was built from."}
 knitr::include_graphics(c("plots/jittered_results_ofl_stability.png",
                           "plots/jittered_results_rec_stability.png",
                           "plots/jittered_results_ssb_stability.png",
                           "plots/jitter_convergence_stability.png"))
 ```
+
+\newpage
 
 ```{r conv-fig-eqmdevs, echo=FALSE, out.width="46%", fig.cap="Jitter diagnostics for the structural experiment 26.d3 (eqmdevs), which replaces the unpenalized 1982 initial numbers with an unfished equilibrium scaled by penalized deviations. Panel order as above. The spread in likelihood is visibly tighter than the accepted model's, but the best fit is still recovered by a single run."}
 knitr::include_graphics(c("plots/jittered_results_ofl_eqmdevs.png",
@@ -4794,6 +4919,8 @@ knitr::include_graphics(c("plots/jittered_results_ofl_eqmdevs.png",
                           "plots/jitter_convergence_eqmdevs.png"))
 ```
 
+\newpage
+
 ```{r conv-fig-combined, echo=FALSE, out.width="46%", fig.cap="Jitter diagnostics for 26.d4 (combined), which applies all three fixes to the two-sex model at once. Panel order as above. It converged less often than any other configuration and no run met the gradient criterion. The dense cluster visible well above the best fit is the mode whose 16.7 percent share must not be read as a recovery rate."}
 knitr::include_graphics(c("plots/jittered_results_ofl_combined.png",
                           "plots/jittered_results_rec_combined.png",
@@ -4801,12 +4928,16 @@ knitr::include_graphics(c("plots/jittered_results_ofl_combined.png",
                           "plots/jitter_convergence_combined.png"))
 ```
 
+\newpage
+
 ```{r conv-fig-d5, echo=FALSE, out.width="46%", fig.cap="Jitter diagnostics for 26.d5, the male-only model with the equilibrium-backbone initialization. Panel order as above. This is the only configuration tested that improved on the model it was derived from. Runs span about six likelihood units, compared with several hundred in the preceding figures, so the separated groups of runs visible in the other panels are absent."}
 knitr::include_graphics(c("plots/jittered_results_ofl_male_only_eqmdevs.png",
                           "plots/jittered_results_rec_male_only_eqmdevs.png",
                           "plots/jittered_results_ssb_male_only_eqmdevs.png",
                           "plots/jitter_convergence_male_only_eqmdevs.png"))
 ```
+
+\newpage
 
 
 ## Caveats
