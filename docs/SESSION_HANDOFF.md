@@ -41,9 +41,10 @@ Hurtado-Ferro bounds: short-lived [−0.22, 0.30] per Grant (paper: `Reports/fsu
 **Status at end of 2026-09-12:** complete. Rendered PDF + DOCX (14/14 post-render checks; independent
 reviews of the data and refits, the jitters, the retrospectives and Appendix B, and the final document).
 Working-repository commits `abf9477` + `0148522`; published here as `3aafbf4`.
-Open: the fishery paragraph's 2024 discard/bycatch figures (2025 values 2.52 / 0.42 kt); re-promoting
-26.d5 from `jitter/048` (same minimum, gradient 0.0004 vs 0.029); whether the specimen `.rds` is
-published here.
+Follow-up (working-repository `557feb9`): Tier 3 OFLs compared with the 2026 survey; fishery history moved
+to 2025; Table 1/Table 4 notes and precision fixed; one caption per multi-panel figure; counts print as
+numerals. Open: re-promoting 26.d5 from `jitter/048` (same minimum, gradient 0.0004 vs 0.029); whether
+the specimen `.rds` is published here.
 
 ## TL;DR — where we are (superseded 2026-09-12 — see above)
 **The assessment now runs on macOS** (GMACS 2.20.34 built from source; see `docs/MACOS_GMACS.md`), and
