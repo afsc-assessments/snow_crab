@@ -28,6 +28,9 @@ Thumbs.db
 *.toc
 SAFE_snow_gmacs_files/
 SAFE_snow_gmacs_cache/
+# the same knit byproducts under the document's current name
+2026_snowcrab_safe_draft_files/
+2026_snowcrab_safe_draft_cache/
 
 # Note: the SAFE PDF itself is NOT ignored (final deliverable is committed on purpose).
 # ADMB run logs / .rep / .std inside model dirs are kept (needed to rebuild the results object).
@@ -39,6 +42,17 @@ SAFE_snow_gmacs_cache/
 Models/*/retro/*/*/
 !Models/*/retro/*.csv
 Models/*/_pre_run_backup/
+
+# --- pre-correction fits (2026-09-12 refit on the net-mensuration-corrected survey) ---
+# As with _prehess_backup/, keep only the files that identify the superseded optimum;
+# the old .dat is in git history and the rest is regenerable ADMB output.
+Models/*/_pre_netcorr_backup/*
+!Models/*/_pre_netcorr_backup/gmacs.par
+!Models/*/_pre_netcorr_backup/gmacs.std
+!Models/*/_pre_netcorr_backup/admodel.hes
+!Models/*/_pre_netcorr_backup/gmacs.bar
+!Models/*/_pre_netcorr_backup/gmacs.cor
+!Models/*/_pre_netcorr_backup/Gmacsall.std
 
 # --- jitter runs (05_run_jitter.R) ---
 # Same shape: each of the 100 runs is a full ADMB run directory (~20 MB with the

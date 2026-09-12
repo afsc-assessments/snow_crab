@@ -65,7 +65,7 @@ patches described in each diagnostic model's `PROVENANCE.md`.
 
 ```r
 Rscript scripts/01_prep_fishery_data.R      # ADF&G removals + NORPAC -> data/derived/
-Rscript scripts/02_prep_survey_data.R      # crabpack survey pull -> comps, indices, ogive
+Rscript scripts/02_prep_survey_data.R      # survey specimen data -> comps, indices, ogive
 Rscript scripts/00_advance_model.R <template_dir> <out_dir> <end_year> <dat_name>
 #   ... then run gmacs in the model directory, to convergence ...
 Rscript scripts/03_build_results_object.R  # model directories -> Models/rda_ModelsResLst.RData
@@ -103,8 +103,14 @@ Changing this schema means changing `scripts/00_advance_model.R` as well.
 before running `01`. Everything downstream of `01` and `02` is included, so the assessment can be
 reproduced from `data/derived/` without them.
 
-Survey data are pulled from the `crabpack` API at run time. Note that `02_prep_survey_data.R` and
-`07_calc_tier4.R` both carry a hardcoded year range; advance them together.
+**Survey specimen data are read from `data/survey/SNOW_specimen_EBS.rds`, which is not distributed
+here.** It is the `crabpack::get_specimen_data()` object for the EBS, 1982–2026, as delivered by the
+NMFS crab survey program in September 2026 with a net-mensuration correction to the 2024–2026 area
+swept (about 4 percent lower biomass and abundance in those years only). Obtain it from the survey
+program and place it at that path before running `02` or `07`; once the `crabpack` API carries the
+correction, the API call quoted in `02` can replace it. See `data/survey/README.txt`.
+`02_prep_survey_data.R` and `07_calc_tier4.R` both check that the file spans 1982–2026; advance
+that range in both scripts together each cycle.
 
 ---
 
