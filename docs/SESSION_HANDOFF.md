@@ -44,8 +44,8 @@ reviews of the data and refits, the jitters, the retrospectives and Appendix B, 
 Working-repository commits `abf9477` + `0148522`; published here as `3aafbf4`.
 Follow-up (working-repository `557feb9`): Tier 3 OFLs compared with the 2026 survey; fishery history moved
 to 2025; Table 1/Table 4 notes and precision fixed; one caption per multi-panel figure; counts print as
-numerals. 26.d5 re-promoted from `jitter/048` (same optimum, lower gradient). Open: whether the specimen
-`.rds` is published here.
+numerals. 26.d5 re-promoted from `jitter/048` (same optimum, lower gradient). The specimen `.rds` is
+published here (2026-09-13), so `02` and `07` run from this repository. Nothing open.
 
 ## TL;DR — where we are (superseded 2026-09-12 — see above)
 **The assessment now runs on macOS** (GMACS 2.20.34 built from source; see `docs/MACOS_GMACS.md`), and

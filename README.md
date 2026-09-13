@@ -103,12 +103,12 @@ Changing this schema means changing `scripts/00_advance_model.R` as well.
 before running `01`. Everything downstream of `01` and `02` is included, so the assessment can be
 reproduced from `data/derived/` without them.
 
-**Survey specimen data are read from `data/survey/SNOW_specimen_EBS.rds`, which is not distributed
-here.** It is the `crabpack::get_specimen_data()` object for the EBS, 1982–2026, as delivered by the
-NMFS crab survey program in September 2026 with a net-mensuration correction to the 2024–2026 area
-swept (about 4 percent lower biomass and abundance in those years only). Obtain it from the survey
-program and place it at that path before running `02` or `07`; once the `crabpack` API carries the
-correction, the API call quoted in `02` can replace it. See `data/survey/README.txt`.
+**Survey specimen data are read from `data/survey/SNOW_specimen_EBS.rds`, which is included.** It is
+the `crabpack::get_specimen_data()` object for the EBS, 1982–2026, as delivered by the NMFS crab survey
+program in September 2026 with a net-mensuration correction to the 2024–2026 area swept (about 4
+percent lower biomass and abundance in those years only), so `02` and `07` run from this repository.
+Once the `crabpack` API carries the correction, the API call quoted in `02` can replace it. See
+`data/survey/README.txt`.
 `02_prep_survey_data.R` and `07_calc_tier4.R` both check that the file spans 1982–2026; advance
 that range in both scripts together each cycle.
 
