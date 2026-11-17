@@ -1517,6 +1517,11 @@ if (mp_have) {
       flextable::fontsize(size = 9, part = "all") |>
       flextable::colformat_double(j = unname(.mp_cols), digits = digits, na_str = "-") |>
       flextable::autofit() |>
+      ## autofit alone runs past the 6.5 in portrait line, as it does for every
+      ## other wide table here. It fit until 2026-09-21 only because the last
+      ## column was headed "Total mortality"; "Total catch (recalculated)" is
+      ## wider and pushed it off the page.
+      flextable::fit_to_width(max_width = 6.4) |>
       flextable::set_caption(
         ## Caption rewritten 2026-09-17. It previously read "Values are those
         ## used to set the specifications in each year", which is true of the
